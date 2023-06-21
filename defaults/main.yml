@@ -1,0 +1,26 @@
+dns_hosts: []
+  # - host: hostname_machine_A
+  #   ip:   "{{ hostvars['hostname_machine_A'].ipv4 }}"     # fetch "ipv4: 192.168.1.1" variable defined in host_vars/hostname_machine_A/network.yml
+  # - host: hostname_machine_B
+  #   ip:   192.168.1.10
+
+dns_resolvers: []
+  # - name: local
+  #   nameservers:
+  #     - 192.168.1.1
+  # - name: quad9
+  #   nameservers:
+  #     - 9.9.9.9
+  #     - 149.112.112.112
+  #     - 2620:fe::fe
+  #     - 2620:fe::9
+  # - name: cloudflare
+  #   nameservers:
+  #     - 1.1.1.1
+  #     - 1.0.0.1
+  #     - 2606:4700:4700::1111
+  #     - 2606:4700:4700::1001
+
+hostname: []
+
+ansible_managed: Ansible managed

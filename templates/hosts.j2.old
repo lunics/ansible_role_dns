@@ -1,8 +1,0 @@
-
-#IP                 hostname
-127.0.0.1           localhost  {{ (inventory_hostname == 'chroot') | ternary(host.bootstrap.hostname, inventory_hostname) }}
-::1                 localhost  {{ (inventory_hostname == 'chroot') | ternary(host.bootstrap.hostname, inventory_hostname) }}
-{% for _host in host | dict2items if _host.key != 'bootstrap' %}
-{{ _host.value.ip }}         {{ _host.key }}
-{% endfor %}
-{{ host.desktop.ip }}         homelab

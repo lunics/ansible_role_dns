@@ -1,89 +1,47 @@
-
-## pourquoi ? when: inventory_hostname != "chroot"  dans ce fichier ?
-
 - block:
-  - block:
-    - name: "[blockinfile] add nameserver to resolv.conf"
-      blockinfile:
-        path: /etc/resolv.conf
-        create: yes
-        marker: "# {mark} ansible"
-        block: |
-          # cloudflare
-          nameserver 1.1.1.1
-          nameserver 1.0.0.1
-          nameserver 2606:4700:4700::1111
-          nameserver 2606:4700:4700::1001
-          # local
-          # nameserver 192.168.1.1
+  - name: template > generate resolv.conf
+    template:
+      src:  resolv.conf.j2
+      dest: /etc/resolv.conf
+    when: inventory_hostname != "chroot"      # resolv.conf is locked by arch-chroot
 
-    - name: "[replace] clean old lines resolv.conf"
-      replace:
-        path:     /etc/resolv.conf
-        before:   "# BEGIN ansible"
-        regexp:   "^(.+)$"
-        replace:  ""
-
-    - name: "[lineinfile] delete empty lines resolv.conf"
-      lineinfile:
-        path:   /etc/resolv.conf
-        regexp: "^ *$"
-        state:  absent
-
-    when: inventory_hostname != "chroot"
-
-  # - name: "[lineinfile] create /etc/hostname and add {{ (inventory_hostname == 'chroot') | ternary(this, inventory_hostname) }}"
-  - name: "[lineinfile] create /etc/hostname and add {{ net.hostname }}"
+  - name: lineinfile > create /etc/hostname and add {{ hostname }}
     lineinfile:
       path:   /etc/hostname
-      line:   "{{ net.hostname }}"
-      # line:   "{{ (inventory_hostname == 'chroot') | ternary(this, inventory_hostname) }}"
+      line:   "{{ hostname }}"
       create: yes
+    register: r_hostname
 
-  ## A DELETE, utiliser ansible_hostname
-  # - name: "[shell] get current hostname"
-  #   shell: hostnamectl status | grep hostname | cut -d " " -f 4
-  #   register: _current_hostname
-  #   when: init_system == "systemd"
-  #   changed_when: false
+  - name: shell > update systemd hostname without reboot
+    shell: hostnamectl set-hostname {{ hostname }}
+    when:
+      - r_hostname.changed
+      - sysinit == "systemd"
+      - ansible_hostname != hostname
+      - inventory_hostname != "chroot"
 
-  - name: "[shell] update systemd hostname without reboot"
-    # shell: hostnamectl set-hostname {{ (inventory_hostname == 'chroot') | ternary(host.bootstrap.hostname, inventory_hostname) }}
-    shell: hostnamectl set-hostname {{ net.hostname }}
-    when:  sys.init_system == "systemd" and ansible_hostname != net.hostname
-    # v1 when:  init_system == "systemd" and _current_hostname.stdout != host[inventory_hostname].hostname
-    # v2 when:  init_system == "systemd" and ansible_hostname != inventory_hostname
-
-  # useless ?
-  ## error: Failed to find required executable hostname
-  # - name: "[hostname] apply hostname: {{ hostname }} without reboot"
-  #   hostname:
-  #     name: "{{ hostname }}"
-  #   when: current_hostname.stdout != hostname
-
-  - name: "[template] add domains to /etc/hosts"
+  - name: template > add domains to /etc/hosts
     template:
       src:  hosts.j2
       dest: /etc/hosts
       mode: 0644
 
-  - name: "[lineinfile] set hostname for openrc"
+  - name: lineinfile > set hostname for openrc
     lineinfile:
       path:   /etc/conf.d/hostname
       regexp: "^hostname="
-      line:   "hostname='{{ net.hostname }}"
-      # line:   "hostname='{{ (inventory_hostname == 'chroot') | ternary(host.bootstrap.hostname, inventory_hostname) }}'"
-    when: sys.init_system == "openrc"
+      line:   "hostname='{{ hostname }}"
+    when: sysinit == "openrc"
 
   # if the network has a DNS server but not a DHCP server
-  - name: "[lineinfile] set local domain name"
+  - name: lineinfile > set local domain name
     lineinfile:
       path:   /etc/conf.d/net
       create: yes
       regexp: "^dns_domain_lo="
       line:   "dns_domain_lo='home-network'"
               # nis_domain_lo="my-nisdomain"    # If a NIS domain is needed
-    when: sys.init_system == "openrc"
+    when: sysinit == "openrc"
 
-  become: yes
-  become_user: "{{ user.0.name }}"
+  become_user: root
+  tags: dns

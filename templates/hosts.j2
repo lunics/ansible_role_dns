@@ -1,4 +1,7 @@
-
+{{ ansible_managed | comment }}
 #IP                 hostname
-127.0.0.1           localhost  {{ net.hostname }}
-::1                 localhost  {{ net.hostname }}
+127.0.0.1           localhost  {{ hostname }}
+::1                 localhost  {{ hostname }}
+{% for item in dns_hosts %}
+{{ '%-16s' | format(item.ip) }}    {{ item.host }}
+{% endfor %}
