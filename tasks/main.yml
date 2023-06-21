@@ -1,7 +1,7 @@
 - block:
   - name: template > generate resolv.conf
     template:
-      src:  resolv.conf.j2
+      src:  resolv.conf
       dest: /etc/resolv.conf
     when: inventory_hostname != "chroot"      # resolv.conf is locked by arch-chroot
 
@@ -23,7 +23,7 @@
 
   - name: template > add domains to /etc/hosts
     template:
-      src:  hosts.j2
+      src:  hosts
       dest: /etc/hosts
       mode: 0644
 

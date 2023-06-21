@@ -1,4 +1,0 @@
-{{ ansible_managed | comment }}
-{% for list_item in dns %}
-{{ '%-16s' | format(list_item.ip) }}    {{ list_item.host }}
-{% endfor %}
