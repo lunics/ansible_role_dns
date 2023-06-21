@@ -11,6 +11,7 @@
       line:   "{{ hostname }}"
       create: yes
     register: r_hostname
+    when: hostname | length
 
   - name: shell > update systemd hostname without reboot
     shell: hostnamectl set-hostname {{ hostname }}

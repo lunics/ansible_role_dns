@@ -1,7 +1,7 @@
 dns_hosts: []
-  # - host: hostname_machine_A
-  #   ip:   "{{ hostvars['hostname_machine_A'].ipv4 }}"     # fetch "ipv4: 192.168.1.1" variable defined in host_vars/hostname_machine_A/network.yml
-  # - host: hostname_machine_B
+  # - host: hostname-machine-A
+  #   ip:   "{{ hostvars['hostname-machine-A'].ipv4 }}"     # fetch "ipv4: 192.168.1.1" variable defined in host_vars/hostname-machine-A/network.yml
+  # - host: hostname-machine-B
   #   ip:   192.168.1.10
 
 dns_resolvers: []
@@ -21,6 +21,6 @@ dns_resolvers: []
   #     - 2606:4700:4700::1111
   #     - 2606:4700:4700::1001
 
-hostname: []
+hostname: []      # must always be set or not in host_vars, never in group_vars
 
 ansible_managed: Ansible managed
