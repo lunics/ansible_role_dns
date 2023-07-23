@@ -1,7 +1,9 @@
 # Ansible role: DNS
 
+Only tested on Archlinux.
+
 ## Usage
-Variables to define or not in your host_vars/group_vars:
+Override [defaults](https://github.com/lunics/ansible_role_dns/blob/main/defaults/main.yml)
 ```yaml
 dns_hosts:
   - host: hostname-machine-A
@@ -20,5 +22,5 @@ dns_resolvers:
       - 2620:fe::fe
       - 2620:fe::9
 
-hostname: machine-1           # must always be set or not in host_vars, never in group_vars
+hostname: machine-1        # must always be set or not in host_vars, never in group_vars
 ```
