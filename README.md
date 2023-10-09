@@ -24,3 +24,5 @@ dns_resolvers:
 
 hostname: machine-1        # must always be set or not in host_vars, never in group_vars
 ```
+TODO
+- dns_hosts KO in chroot
