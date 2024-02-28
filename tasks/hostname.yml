@@ -1,0 +1,25 @@
+- block:
+  - name: hostname | lineinfile > Create /etc/hostname and add {{ hostname }}
+    lineinfile:
+      path:   /etc/hostname
+      line:   "{{ hostname }}"
+      create: true
+    register: r_hostname
+    when: hostname | length
+
+  - name: shell > Update systemd hostname without reboot
+    shell: hostnamectl set-hostname {{ hostname }}
+    when:
+      - r_hostname.changed
+      - sysinit == "systemd"
+      - ansible_hostname != hostname
+      - inventory_hostname != "chroot"
+
+  - name: hostname | lineinfile > Sets hostname for openrc
+    lineinfile:
+      path:   /etc/conf.d/hostname
+      regexp: "^hostname="
+      line:   "hostname='{{ hostname }}"
+    when: sysinit == "openrc"
+
+  tags: hostname

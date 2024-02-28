@@ -1,39 +1,10 @@
 - block:
-  - name: template > Generate resolv.conf
-    template:
-      src:  etc_resolv.conf
-      dest: /etc/resolv.conf
-    when: inventory_hostname != "chroot"      # resolv.conf is locked by arch-chroot
-
-  - name: lineinfile > Create /etc/hostname and add {{ hostname }}
-    lineinfile:
-      path:   /etc/hostname
-      line:   "{{ hostname }}"
-      create: true
-    register: r_hostname
-    when: hostname | length
-
-  - name: shell > Update systemd hostname without reboot
-    shell: hostnamectl set-hostname {{ hostname }}
-    when:
-      - r_hostname.changed
-      - sysinit == "systemd"
-      - ansible_hostname != hostname
-      - inventory_hostname != "chroot"
-
   - name: template > Add domains to /etc/hosts
     template:
       src:  etc_hosts
       dest: /etc/hosts
       mode: "0644"
     when: inventory_hostname != "chroot"  ## why KO in chroot ?
-
-  - name: lineinfile > Sets hostname for openrc
-    lineinfile:
-      path:   /etc/conf.d/hostname
-      regexp: "^hostname="
-      line:   "hostname='{{ hostname }}"
-    when: sysinit == "openrc"
 
   # if the network has a DNS server but not a DHCP server
   - name: lineinfile > Sets local domain name
@@ -44,6 +15,12 @@
       line:   "dns_domain_lo='home-network'"
               # nis_domain_lo="my-nisdomain"    # If a NIS domain is needed
     when: sysinit == "openrc"
+
+  - import_tasks: resolver.yml
+
+  - import_tasks: hostname.yml
+
+  - import_tasks: dyndns.yml
 
   become_user: root
   tags: dns

@@ -1,0 +1,12 @@
+- block:
+  - name: dyndns | package > Intall ddclient
+    package:
+      name: ddclient
+
+  - name: dyndns | template > Generate ddclient.conf
+    template:
+      src:  ddclient.conf
+      dest: /etc/ddclient.conf
+
+  when: dyndns
+  tags: dyndns

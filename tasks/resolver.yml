@@ -1,0 +1,10 @@
+- block:
+  - name: resolver | template > Generate resolv.conf
+    template:
+      src:  etc_resolv.conf
+      dest: /etc/resolv.conf
+    when:
+      - inventory_hostname != "chroot"      # resolv.conf is locked by arch-chroot
+      - dns_resolver == "resolvconf"
+
+  tags: dns_resolver

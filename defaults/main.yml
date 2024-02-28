@@ -1,3 +1,6 @@
+dns_resolver: resolvconf    # systemd-resolved, resolvconf
+dyndns:       false         # require vault.dyndns.id/passwd
+
 dns_hosts: []
   # - host: hostname-machine-A
   #   ip:   "{{ hostvars['hostname-machine-A'].ipv4 }}"     # fetch "ipv4: 192.168.1.1" variable defined in host_vars/hostname-machine-A/network.yml
@@ -22,5 +25,3 @@ dns_resolvers: []
   #     - 2606:4700:4700::1001
 
 hostname: []      # must always be set or not in host_vars, never in group_vars
-
-ansible_managed: Ansible managed
